@@ -1,24 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
+import { fetchRandomFact } from './api/fetchFact';
+import { FactResponse } from './types';
 import './App.css';
 
-function App() {
+const App: React.FC = () => {
+  const [fact, setFact] = useState<FactResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadFact = async () => {
+    try {
+      const data = await fetchRandomFact();
+      setFact(data);
+      setError(null);
+    } catch (error) {
+      setError("Chyba při načítání faktu. Zkus to znovu.");
+    }
+  };
+
+  useEffect(() => {
+    loadFact();
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h2>Random Useless Facts</h2>
+      {error && <p>{error}</p>}
+      {fact ? (
+        <div className="factSection">
+          <p>{fact.text}</p>
+          <button onClick={loadFact}>Next</button>
+        </div>
+      ) : (
+        <p>Načítání...</p>
+      )}
     </div>
   );
 }
